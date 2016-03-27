@@ -8,6 +8,9 @@ import ru.iteco.test.utils.rules.MockitoRule;
 import ru.iteco.test.utils.rules.ParameterizedRule;
 import ru.iteco.test.utils.rules.TempDirRule;
 
+/**
+ * Test rules for app module.
+ */
 public class AppRule {
   private AppRule() {}
   /**
