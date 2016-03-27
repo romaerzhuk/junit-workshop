@@ -7,12 +7,13 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.sql.SQLException;
 import javax.annotation.Resource;
+import org.apache.commons.io.FileUtils;
 
 public class Sample2 {
   @Resource
   private Dao dao;
   @Resource
-  private File dir;
+  File dir;
   @Resource
   private Formatter formatter;
 
@@ -28,19 +29,17 @@ public class Sample2 {
     Writer out = null;
     Cursor<Account> cursor = dao.openByName(name);
     //try {
-      cursor.hasNext();
-      //while (cursor.hasNext()) {
-      //  Account account = cursor.next();
-      //  if (predicate.apply(account)) {
-      //    if (out == null) {
-      //      out = new OutputStreamWriter(new FileOutputStream(new File(dir, name)), "UTF-8");
-      //    }
-      //    formatter.write(out, account);
-      //  }
-      //}
-      //return out != null;
+      while (cursor.hasNext()) {
+        Account account = cursor.next();
+        if (predicate.apply(account)) {
+          if (out == null) {
+            out = new OutputStreamWriter(new FileOutputStream(new File(dir, name)), "UTF-8");
+          }
+          formatter.write(out, account);
+        }
+      }
       cursor.close();
-      return false;
+      return out != null;
     //} finally {
     //  cursor.close();
     //  if (out != null) {
