@@ -29,12 +29,22 @@ public class Sample1Test {
   }
 
   @Test
-  public void testParse_Exception() throws Exception {
+  public void testParse_ParseException() throws Exception {
     try {
       subj.parse("2016-03-27T10:33:1?");
       fail();
     } catch (IllegalArgumentException e) {
       assertEquals("Некорректно: dateTime=[2016-03-27T10:33:1?]", e.getMessage());
+    }
+  }
+
+  @Test
+  public void testParse_NullPointerException() throws Exception {
+    try {
+      subj.parse(null);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertEquals("Некорректно: dateTime=[null]", e.getMessage());
     }
   }
 }
