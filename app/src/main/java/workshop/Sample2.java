@@ -27,22 +27,25 @@ public class Sample2 {
   public boolean saveToFile(String name, Predicate predicate) throws IOException, SQLException {
     Writer out = null;
     Cursor<Account> cursor = dao.openByName(name);
-    try {
-      while (cursor.hasNext()) {
-        Account account = cursor.next();
-        if (predicate.apply(account)) {
-          if (out == null) {
-            out = new OutputStreamWriter(new FileOutputStream(new File(dir, name)), "UTF-8");
-          }
-          formatter.write(out, account);
-        }
-      }
-      return out != null;
-    } finally {
+    //try {
+      cursor.hasNext();
+      //while (cursor.hasNext()) {
+      //  Account account = cursor.next();
+      //  if (predicate.apply(account)) {
+      //    if (out == null) {
+      //      out = new OutputStreamWriter(new FileOutputStream(new File(dir, name)), "UTF-8");
+      //    }
+      //    formatter.write(out, account);
+      //  }
+      //}
+      //return out != null;
       cursor.close();
-      if (out != null) {
-        out.close();
-      }
-    }
+      return false;
+    //} finally {
+    //  cursor.close();
+    //  if (out != null) {
+    //    out.close();
+    //  }
+    //}
   }
 }
