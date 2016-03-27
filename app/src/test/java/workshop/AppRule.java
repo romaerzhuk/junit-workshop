@@ -8,15 +8,10 @@ import ru.iteco.test.utils.rules.MockitoRule;
 import ru.iteco.test.utils.rules.ParameterizedRule;
 import ru.iteco.test.utils.rules.TempDirRule;
 
-/**
- * Test rules for app module.
- *
- * @author Roman Erzhukov I-Teco 2016-03-24
- */
 public class AppRule {
   private AppRule() {}
   /**
-   * Creates test rules for bo-server-mms module.
+   * Creates test rules for app module.
    *
    * @param test
    *          object containg test methods
