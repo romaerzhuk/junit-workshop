@@ -95,6 +95,11 @@ org.eclipse.jdt.ui.staticondemandthreshold=999
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-log4j12</artifactId>
+        <version>${slf4jVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
         <artifactId>jul-to-slf4j</artifactId>
         <version>${slf4jVersion}</version>
       </dependency>
