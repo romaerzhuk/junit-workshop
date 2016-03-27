@@ -7,9 +7,13 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.sql.SQLException;
 import javax.annotation.Resource;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Sample2 {
+  private Logger log = LoggerFactory.getLogger(getClass());
+
   @Resource
   private Dao dao;
   @Resource
@@ -28,7 +32,7 @@ public class Sample2 {
   public boolean saveToFile(String name, Predicate predicate) throws IOException, SQLException {
     Writer out = null;
     Cursor<Account> cursor = dao.openByName(name);
-    //try {
+    try {
       while (cursor.hasNext()) {
         Account account = cursor.next();
         if (predicate.apply(account)) {
@@ -38,13 +42,20 @@ public class Sample2 {
           formatter.write(out, account);
         }
       }
-      cursor.close();
       return out != null;
-    //} finally {
-    //  cursor.close();
-    //  if (out != null) {
-    //    out.close();
-    //  }
-    //}
+    } finally {
+      close(cursor);
+      IOUtils.closeQuietly(out);
+    }
+  }
+
+  private void close(Cursor<Account> cursor) {
+    try {
+      if (cursor != null) {
+        cursor.close();
+      }
+    } catch (Throwable t) {
+      log.warn("Невозможно закрыть курсор", t);
+    }
   }
 }
