@@ -1,6 +1,8 @@
 package workshop;
 
 import java.io.Writer;
+import java.sql.SQLException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -8,15 +10,20 @@ import org.junit.rules.TestRule;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import ru.iteco.test.utils.LoggerMock;
 import ru.iteco.test.utils.TestUtil;
 import ru.iteco.test.utils.annotations.BeforeMock;
+import ru.iteco.test.utils.annotations.LogMock;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static ru.iteco.test.utils.MockUtils.*;
 import static ru.iteco.test.utils.TestUtil.uid;
@@ -37,6 +44,9 @@ public class Sample2Test {
   private Cursor<Account> cursor;
   @Mock
   private Formatter formatter;
+
+  @LogMock
+  private LoggerMock log;
 
   @BeforeMock
   public void beforeMock() {
@@ -88,6 +98,33 @@ public class Sample2Test {
     verifyInOrder(formatter).write(isA(Writer.class), eq(account3));
     verifyInOrder(cursor).hasNext();
     verifyInOrder(cursor).close();
+  }
+
+  @Test
+  public void testSaveToFile_Exceptions() throws Throwable {
+    saveToFile_Exceptions(new RuntimeException(uidS()), new SQLException(uidS()));
+    saveToFile_Exceptions(new RuntimeException(uidS()), new RuntimeException(uidS()));
+  }
+
+  private void saveToFile_Exceptions(Throwable thrown1, Throwable thrown2) throws Throwable {
+    doThrow(thrown1).when(cursor).hasNext();
+    doThrow(thrown2).when(cursor).close();
+
+    String name = uidS();
+    when(dao.openByName(anyString())).thenReturn(cursor);
+
+    try {
+      subj.saveToFile(name, predicate);
+      fail();
+    } catch (Throwable t) {
+      if (t != thrown1)
+        throw t;
+      verifyInOrder(dao).openByName(name);
+      verifyInOrder(cursor).hasNext();
+      verifyInOrder(cursor).close();
+
+      log.warn("Невозможно закрыть курсор", thrown2);
+    }
   }
 
   private Account newAccount() {
