@@ -26,10 +26,10 @@ public class Sample2 {
   }
 
   public void copy(Account account) {
-//    Account clone = account.clone();
-//    clone.setId(dao.nextId());
-//    clone.setCreated(clock.newTimestamp());
-//    dao.save(clone);
+    Account clone = account.clone();
+    clone.setId(dao.nextId());
+    clone.setCreated(clock.newTimestamp());
+    dao.save(clone);
   }
 
   // нужен для mock-тестирования

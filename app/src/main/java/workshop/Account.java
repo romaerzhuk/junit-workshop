@@ -3,7 +3,7 @@ package workshop;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-public class Account {
+public class Account implements Cloneable {
   private long id;
   private String name;
   private BigDecimal amount;
