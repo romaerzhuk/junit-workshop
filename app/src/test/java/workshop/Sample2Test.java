@@ -1,7 +1,9 @@
 package workshop;
 
+import java.io.File;
 import java.io.Writer;
 import java.sql.SQLException;
+import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -11,11 +13,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.mockito.stubbing.Stubber;
 import ru.iteco.test.utils.LoggerMock;
 import ru.iteco.test.utils.TestUtil;
 import ru.iteco.test.utils.annotations.BeforeMock;
 import ru.iteco.test.utils.annotations.LogMock;
 
+import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -23,6 +29,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static ru.iteco.test.utils.MockUtils.*;
@@ -81,8 +88,20 @@ public class Sample2Test {
     Account account3 = newAccount();
     when(cursor.next()).thenReturn(account1, account2, account3);
     when(predicate.apply(any(Account.class))).thenReturn(true, false, true);
+    doAnswer(new Answer<Void>() {
+      @Override
+      public Void answer(InvocationOnMock inv) throws Throwable {
+        Writer out = inv.getArgumentAt(0, Writer.class);
+        Account account = inv.getArgumentAt(1, Account.class);
+        out.write(account.getId() + "\n");
+        return null;
+      }
+    }).when(formatter).write(isA(Writer.class), any(Account.class));
 
     assertThat(subj.saveToFile(name, predicate), is(true));
+
+    assertThat(readFileToString(new File(subj.dir, name + ".txt"), "cp1251"),
+        is(account1.getId() + "\n" + account3.getId() + "\n"));
 
     verifyInOrder(dao).openByName(name);
     verifyInOrder(cursor).hasNext();

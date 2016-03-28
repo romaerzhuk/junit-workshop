@@ -37,7 +37,7 @@ public class Sample2 {
         Account account = cursor.next();
         if (predicate.apply(account)) {
           if (out == null) {
-            out = new OutputStreamWriter(new FileOutputStream(new File(dir, name)), "UTF-8");
+            out = new OutputStreamWriter(new FileOutputStream(new File(dir, name + ".txt")), "UTF-8");
           }
           formatter.write(out, account);
         }
