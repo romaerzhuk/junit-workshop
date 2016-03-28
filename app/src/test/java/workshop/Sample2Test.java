@@ -7,8 +7,10 @@ import static org.mockito.Mockito.when;
 import static ru.iteco.test.utils.MockUtils.verifyInOrder;
 import static ru.iteco.test.utils.TestUtil.newTimestamp;
 import static ru.iteco.test.utils.TestUtil.uid;
+import static ru.iteco.test.utils.TestUtil.uidBool;
 import static ru.iteco.test.utils.TestUtil.uidS;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import org.junit.Before;
@@ -19,6 +21,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import ru.iteco.test.utils.TestUtil;
 import ru.iteco.test.utils.annotations.BeforeMock;
 
 public class Sample2Test {
@@ -78,6 +81,33 @@ public class Sample2Test {
 
     verifyInOrder(self).createAccount(name1);
     verifyInOrder(self).createAccount(name2);
+  }
+
+  @Test
+  public void testCopy() {
+    Account account = newAccount();
+    long id = uid();
+    when(dao.nextId()).thenReturn(id);
+
+    subj.copy(account);
+    verifyInOrder(dao).nextId();
+    verifyInOrder(clock).newTimestamp();
+    verifyInOrder(dao).save(accountCaptor.capture());
+    assertThat(account().getId(), is(id));
+    assertThat(account().getName(), is(account.getName()));
+    assertThat(account().getCreated(), is(now));
+    assertThat(account().getAmount(), is(account.getAmount()));
+    assertThat(account().isClosed(), is(account.isClosed()));
+  }
+
+  private Account newAccount() {
+    Account a = new Account();
+    a.setCreated(newTimestamp());
+    a.setId(uid());
+    a.setName(uidS());
+    a.setAmount(BigDecimal.valueOf(uid()));
+    a.setClosed(uidBool());
+    return a;
   }
 
   private Account account() {

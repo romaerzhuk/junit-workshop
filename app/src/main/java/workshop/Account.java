@@ -49,4 +49,13 @@ public class Account {
   public void setCreated(Timestamp created) {
     this.created = created;
   }
+
+  @Override
+  public Account clone()  {
+    try {
+      return (Account) super.clone();
+    } catch (CloneNotSupportedException e) {
+      throw new RuntimeException();
+    }
+  }
 }
