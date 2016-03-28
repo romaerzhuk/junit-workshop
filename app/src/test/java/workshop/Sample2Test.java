@@ -16,6 +16,8 @@ import static ru.iteco.test.utils.TestUtil.uidS;
 
 import java.io.File;
 import java.io.Writer;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Before;
@@ -40,6 +42,8 @@ public class Sample2Test {
   private Sample2 subj;
 
   @Mock
+  private Sample2 self;
+  @Mock
   private Dao dao;
   @Mock
   private Predicate predicate;
@@ -58,7 +62,11 @@ public class Sample2Test {
 
   @BeforeMock
   public void beforeMock() {
-    subj = new Sample2();
+    subj = new Sample2() {
+      @Override Sample2 self() {
+        return self;
+      }
+    };
   }
 
   @Before
@@ -67,8 +75,7 @@ public class Sample2Test {
   }
 
   @Test
-  public void testSaveToFile_cursor_is_empty() throws Exception {
-    // шаг1: saveToFile
+  public void testSaveToFile() throws Exception {
     String name = uidS();
     when(dao.cursorCreatorByName(name)).thenReturn(cursorCreator);
     boolean result = uidBool();
@@ -80,25 +87,26 @@ public class Sample2Test {
     verifyInOrder(cursorTemplate).execute(eq(cursorCreator), cursorCallback.capture());
 
     // шаг2: doWithCursor
-    List<Account> accounts = asList();
+    Iterator<Account> cursor = asList(newAccount()).iterator(); // любой список
+    result = uidBool();
+    when(self.saveToFile(cursor, name, predicate)).thenReturn(result);
 
-    assertThat(cursorCallback.getValue().doWithCursor(accounts.iterator()), is(false));
+    assertThat(cursorCallback.getValue().doWithCursor(cursor), is(result));
+
+    verifyInOrder(self).saveToFile(cursor, name, predicate);
   }
 
   @Test
-  public void testSaveToFile() throws Exception {
-    // шаг1: saveToFile
+  public void testSaveToFile_cursor_is_empty() throws Exception {
     String name = uidS();
-    when(dao.cursorCreatorByName(name)).thenReturn(cursorCreator);
-    boolean result = uidBool();
-    when(cursorTemplate.execute(eq(cursorCreator), anyCursorCallback())).thenReturn(result);
+    Iterator<Account> cursor = Collections.<Account>emptyList().iterator();
 
-    assertThat(subj.saveToFile(name, predicate), is(result));
+    assertThat(subj.saveToFile(cursor, name, predicate), is(false));
+  }
 
-    verifyInOrder(dao).cursorCreatorByName(name);
-    verifyInOrder(cursorTemplate).execute(eq(cursorCreator), cursorCallback.capture());
-
-    // шаг2: doWithCursor
+  @Test
+  public void testSaveToFile_cursor() throws Exception {
+    String name = uidS();
     List<Account> accounts = asList(newAccount(), newAccount(), newAccount());
     when(predicate.apply(any(Account.class))).thenReturn(true, false, true);
     doAnswer(inv -> {
@@ -108,7 +116,7 @@ public class Sample2Test {
       return null;
     }).when(formatter).write(isA(Writer.class), any(Account.class));
 
-    assertThat(cursorCallback.getValue().doWithCursor(accounts.iterator()), is(true));
+    assertThat(subj.saveToFile(accounts.iterator(), name, predicate), is(true));
 
     assertThat(readFileToString(new File(subj.dir, name + ".txt"), "UTF-8"),
       is(accounts.get(0).getName() + "\n" + accounts.get(2).getName() + "\n"));

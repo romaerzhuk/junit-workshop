@@ -32,7 +32,7 @@ public class Sample2 {
     return cursorTemplate.execute(dao.cursorCreatorByName(name), new CursorCallback<Account, Boolean>() {
         @Override
         public Boolean doWithCursor(Iterator<Account> cursor) throws SQLException {
-          return saveToFile(cursor, predicate, name);
+          return self().saveToFile(cursor, name, predicate);
         }
       });
   }
@@ -41,7 +41,7 @@ public class Sample2 {
     return this;
   }
 
-  Boolean saveToFile(Iterator<Account> cursor, Predicate predicate, String name) {
+  boolean saveToFile(Iterator<Account> cursor, String name, Predicate predicate) {
     Writer out = null;
     try {
       while (cursor.hasNext()) {
