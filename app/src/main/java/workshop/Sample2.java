@@ -1,5 +1,6 @@
 package workshop;
 
+import java.sql.Timestamp;
 import javax.annotation.Resource;
 
 public class Sample2 {
@@ -10,6 +11,7 @@ public class Sample2 {
     Account account = new Account();
     account.setId(dao.nextId());
     account.setName(name);
+    account.setCreated(new Timestamp(System.currentTimeMillis()));
     dao.save(account);
     return account.getId();
   }

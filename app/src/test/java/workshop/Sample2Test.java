@@ -55,7 +55,7 @@ public class Sample2Test {
     verifyInOrder(dao).save(accountCaptor.capture());
     assertThat(account().getId(), is(id));
     assertThat(account().getName(), is(name));
-    //assertThat(account().getCreated(), is(now));
+    assertThat(account().getCreated(), is(now));
   }
 
   private Account account() {
