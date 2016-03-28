@@ -20,6 +20,13 @@ public class Sample2 {
   }
 
   public void createAccounts(List<String> names) {
+//    for (String name: names) {
+//      createAccount(name);
+//    }
+  }
 
+  // нужен для mock-тестирования
+  Sample2 self() {
+    return this;
   }
 }

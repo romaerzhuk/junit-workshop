@@ -28,6 +28,8 @@ public class Sample2Test {
   @InjectMocks
   private Sample2 subj;
   @Mock
+  private Sample2 self;
+  @Mock
   private Clock clock;
   @Mock
   private Dao dao;
@@ -38,7 +40,11 @@ public class Sample2Test {
 
   @BeforeMock
   public void beforeMock() {
-    subj = new Sample2();
+    subj = new Sample2() {
+      @Override Sample2 self() {
+        return self;
+      }
+    };
   }
 
   @Before
@@ -69,7 +75,9 @@ public class Sample2Test {
     String name2 = uidS();
 
     subj.createAccounts(asList(name1, name2));
-    // как тестировать ???
+
+    verifyInOrder(self).createAccount(name1);
+    verifyInOrder(self).createAccount(name2);
   }
 
   private Account account() {
