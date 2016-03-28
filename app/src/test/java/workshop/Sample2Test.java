@@ -1,5 +1,6 @@
 package workshop;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
@@ -9,6 +10,7 @@ import static ru.iteco.test.utils.TestUtil.uid;
 import static ru.iteco.test.utils.TestUtil.uidS;
 
 import java.sql.Timestamp;
+import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -59,6 +61,15 @@ public class Sample2Test {
     assertThat(account().getId(), is(id));
     assertThat(account().getName(), is(name));
     assertThat(account().getCreated(), is(now));
+  }
+
+  @Test
+  public void testCreateAccounts() {
+    String name1 = uidS();
+    String name2 = uidS();
+
+    subj.createAccounts(asList(name1, name2));
+    // как тестировать ???
   }
 
   private Account account() {
