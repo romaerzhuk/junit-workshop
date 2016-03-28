@@ -51,6 +51,7 @@ public class Sample2Test {
 
     assertThat(subj.createAccount(name), is(id));
 
+    verifyInOrder(dao).nextId();
     verifyInOrder(dao).save(accountCaptor.capture());
     assertThat(account().getId(), is(id));
     assertThat(account().getName(), is(name));
