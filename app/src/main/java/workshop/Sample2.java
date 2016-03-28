@@ -19,6 +19,8 @@ public class Sample2 {
   private Formatter formatter;
   @Resource
   private CursorTemplate cursorTemplate;
+  @Resource
+  private FileTemplate fileTemplate;
 
   /**
    * Сохраняет в файл name.txt список счетов удовлетворяющих условию
@@ -42,22 +44,23 @@ public class Sample2 {
   }
 
   boolean saveToFile(Iterator<Account> cursor, String name, Predicate predicate) {
-    Writer out = null;
     try {
-      while (cursor.hasNext()) {
-        Account account = cursor.next();
-        if (predicate.apply(account)) {
-          if (out == null) {
-            out = new OutputStreamWriter(new FileOutputStream(new File(dir, name + ".txt")), "UTF-8");
-          }
-          formatter.write(out, account);
+      return fileTemplate.execute(new File(dir, name + ".txt"), new WriterCallback<Boolean>() {
+        @Override
+        public Boolean doWithWriter(LazyWriter lazyWriter) throws IOException {
+          Writer out = null;
+            while (cursor.hasNext()) {
+              Account account = cursor.next();
+              if (predicate.apply(account)) {
+                out = lazyWriter.get();
+                formatter.write(out, account);
+              }
+            }
+            return out != null;
         }
-      }
-      return out != null;
+      });
     } catch (IOException e) {
       throw new RuntimeException(e.getMessage(), e); // TODO поправить хак
-    } finally {
-      IOUtils.closeQuietly(out);
     }
   }
 }

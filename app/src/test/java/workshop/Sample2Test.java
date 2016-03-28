@@ -33,6 +33,7 @@ import ru.iteco.test.utils.LoggerMock;
 import ru.iteco.test.utils.TestUtil;
 import ru.iteco.test.utils.annotations.BeforeMock;
 import ru.iteco.test.utils.annotations.LogMock;
+import ru.iteco.test.utils.annotations.NoInOrder;
 
 public class Sample2Test {
   @Rule
@@ -53,9 +54,19 @@ public class Sample2Test {
   private Formatter formatter;
   @Mock
   private CursorTemplate cursorTemplate;
+  @Mock
+  private FileTemplate fileTemplate;
+  @Mock
+  private Writer writer;
+
+  @Mock
+  @NoInOrder
+  private LazyWriter lazyWriter;
 
   @Captor
   private ArgumentCaptor<CursorCallback<Account, Boolean>> cursorCallback;
+  @Captor
+  private ArgumentCaptor<WriterCallback<Object>> writerCallback;
 
   @LogMock
   private LoggerMock log;
@@ -70,8 +81,9 @@ public class Sample2Test {
   }
 
   @Before
-  public void setUp() {
+  public void setUp() throws  Exception{
     subj.dir = TestUtil.getTempFolder(getClass());
+    when(lazyWriter.get()).thenReturn(writer);
   }
 
   @Test
@@ -98,34 +110,42 @@ public class Sample2Test {
 
   @Test
   public void testSaveToFile_cursor_is_empty() throws Exception {
+    // шаг1: fileTemplate.execute
     String name = uidS();
     Iterator<Account> cursor = Collections.<Account>emptyList().iterator();
+    boolean result = uidBool();
+    when(fileTemplate.execute(any(File.class), any(WriterCallback.class))).thenReturn(result);
 
-    assertThat(subj.saveToFile(cursor, name, predicate), is(false));
+    assertThat(subj.saveToFile(cursor, name, predicate), is(result));
+
+    verifyInOrder(fileTemplate).execute(eq(new File(subj.dir, name + ".txt")), writerCallback.capture());
+
+    // шаг2: doWithWriter
+    assertThat(writerCallback.getValue().doWithWriter(lazyWriter), is(false));
   }
 
   @Test
   public void testSaveToFile_cursor() throws Exception {
+    // шаг1: fileTemplate.execute
     String name = uidS();
+    boolean result = uidBool();
+    when(fileTemplate.execute(any(File.class), any(WriterCallback.class))).thenReturn(result);
     List<Account> accounts = asList(newAccount(), newAccount(), newAccount());
+
+    assertThat(subj.saveToFile(accounts.iterator(), name, predicate), is(result));
+
+    verifyInOrder(fileTemplate).execute(eq(new File(subj.dir, name + ".txt")), writerCallback.capture());
+
+    // шаг2: doWithWriter
     when(predicate.apply(any(Account.class))).thenReturn(true, false, true);
-    doAnswer(inv -> {
-      Writer out = inv.getArgumentAt(0, Writer.class);
-      Account account = inv.getArgumentAt(1, Account.class);
-      out.write(account.getName() + "\n");
-      return null;
-    }).when(formatter).write(isA(Writer.class), any(Account.class));
 
-    assertThat(subj.saveToFile(accounts.iterator(), name, predicate), is(true));
-
-    assertThat(readFileToString(new File(subj.dir, name + ".txt"), "UTF-8"),
-      is(accounts.get(0).getName() + "\n" + accounts.get(2).getName() + "\n"));
+    assertThat(writerCallback.getValue().doWithWriter(lazyWriter), is(true));
 
     verifyInOrder(predicate).apply(accounts.get(0));
-    verifyInOrder(formatter).write(isA(Writer.class), eq(accounts.get(0)));
+    verifyInOrder(formatter).write(writer, accounts.get(0));
     verifyInOrder(predicate).apply(accounts.get(1));
     verifyInOrder(predicate).apply(accounts.get(2));
-    verifyInOrder(formatter).write(isA(Writer.class), eq(accounts.get(2)));
+    verifyInOrder(formatter).write(writer, accounts.get(2));
   }
 
   @SuppressWarnings("unchecked")
