@@ -1,40 +1,36 @@
 package workshop;
 
+import static java.util.Arrays.asList;
+import static org.apache.commons.io.FileUtils.readFileToString;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
+import static ru.iteco.test.utils.MockUtils.verifyInOrder;
+import static ru.iteco.test.utils.TestUtil.uid;
+import static ru.iteco.test.utils.TestUtil.uidBool;
+import static ru.iteco.test.utils.TestUtil.uidS;
+
 import java.io.File;
 import java.io.Writer;
-import java.sql.SQLException;
-import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.mockito.stubbing.Stubber;
+
 import ru.iteco.test.utils.LoggerMock;
 import ru.iteco.test.utils.TestUtil;
 import ru.iteco.test.utils.annotations.BeforeMock;
 import ru.iteco.test.utils.annotations.LogMock;
-
-import static org.apache.commons.io.FileUtils.readFileToString;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
-import static ru.iteco.test.utils.MockUtils.*;
-import static ru.iteco.test.utils.TestUtil.uid;
-import static ru.iteco.test.utils.TestUtil.uidS;
 
 public class Sample2Test {
   @Rule
@@ -48,9 +44,14 @@ public class Sample2Test {
   @Mock
   private Predicate predicate;
   @Mock
-  private Cursor<Account> cursor;
+  private CursorCreator<Account> cursorCreator;
   @Mock
   private Formatter formatter;
+  @Mock
+  private CursorTemplate cursorTemplate;
+
+  @Captor
+  private ArgumentCaptor<CursorCallback<Account, Boolean>> cursorCallback;
 
   @LogMock
   private LoggerMock log;
@@ -67,26 +68,38 @@ public class Sample2Test {
 
   @Test
   public void testSaveToFile_cursor_is_empty() throws Exception {
+    // шаг1: saveToFile
     String name = uidS();
-    when(dao.openByName(anyString())).thenReturn(cursor);
-    when(cursor.hasNext()).thenReturn(false);
+    when(dao.cursorCreatorByName(name)).thenReturn(cursorCreator);
+    boolean result = uidBool();
+    when(cursorTemplate.execute(eq(cursorCreator), anyCursorCallback())).thenReturn(result);
 
-    assertThat(subj.saveToFile(name, predicate), is(false));
+    assertThat(subj.saveToFile(name, predicate), is(result));
 
-    verifyInOrder(dao).openByName(name);
-    verifyInOrder(cursor).hasNext();
-    verifyInOrder(cursor).close();
+    verifyInOrder(dao).cursorCreatorByName(name);
+    verifyInOrder(cursorTemplate).execute(eq(cursorCreator), cursorCallback.capture());
+
+    // шаг2: doWithCursor
+    List<Account> accounts = asList();
+
+    assertThat(cursorCallback.getValue().doWithCursor(accounts.iterator()), is(false));
   }
 
   @Test
   public void testSaveToFile() throws Exception {
+    // шаг1: saveToFile
     String name = uidS();
-    when(dao.openByName(anyString())).thenReturn(cursor);
-    when(cursor.hasNext()).thenReturn(true, true, true, false);
-    Account account1 = newAccount();
-    Account account2 = newAccount();
-    Account account3 = newAccount();
-    when(cursor.next()).thenReturn(account1, account2, account3);
+    when(dao.cursorCreatorByName(name)).thenReturn(cursorCreator);
+    boolean result = uidBool();
+    when(cursorTemplate.execute(eq(cursorCreator), anyCursorCallback())).thenReturn(result);
+
+    assertThat(subj.saveToFile(name, predicate), is(result));
+
+    verifyInOrder(dao).cursorCreatorByName(name);
+    verifyInOrder(cursorTemplate).execute(eq(cursorCreator), cursorCallback.capture());
+
+    // шаг2: doWithCursor
+    List<Account> accounts = asList(newAccount(), newAccount(), newAccount());
     when(predicate.apply(any(Account.class))).thenReturn(true, false, true);
     doAnswer(inv -> {
       Writer out = inv.getArgumentAt(0, Writer.class);
@@ -95,54 +108,21 @@ public class Sample2Test {
       return null;
     }).when(formatter).write(isA(Writer.class), any(Account.class));
 
-    assertThat(subj.saveToFile(name, predicate), is(true));
+    assertThat(cursorCallback.getValue().doWithCursor(accounts.iterator()), is(true));
 
     assertThat(readFileToString(new File(subj.dir, name + ".txt"), "UTF-8"),
-        is(account1.getName() + "\n" + account3.getName() + "\n"));
+      is(accounts.get(0).getName() + "\n" + accounts.get(2).getName() + "\n"));
 
-    verifyInOrder(dao).openByName(name);
-    verifyInOrder(cursor).hasNext();
-    verifyInOrder(cursor).next();
-    verifyInOrder(predicate).apply(account1);
-    verifyInOrder(formatter).write(isA(Writer.class), eq(account1));
-    verifyInOrder(cursor).hasNext();
-    verifyInOrder(cursor).next();
-    verifyInOrder(predicate).apply(account2);
-    verifyInOrder(cursor).hasNext();
-    verifyInOrder(cursor).next();
-    verifyInOrder(predicate).apply(account3);
-    verifyInOrder(formatter).write(isA(Writer.class), eq(account3));
-    verifyInOrder(cursor).hasNext();
-    verifyInOrder(cursor).close();
+    verifyInOrder(predicate).apply(accounts.get(0));
+    verifyInOrder(formatter).write(isA(Writer.class), eq(accounts.get(0)));
+    verifyInOrder(predicate).apply(accounts.get(1));
+    verifyInOrder(predicate).apply(accounts.get(2));
+    verifyInOrder(formatter).write(isA(Writer.class), eq(accounts.get(2)));
   }
 
-  @Test
-  public void testSaveToFile_Exceptions() throws Throwable {
-    saveToFile_Exceptions(new RuntimeException(uidS()), new SQLException(uidS()));
-    saveToFile_Exceptions(new RuntimeException(uidS()), new RuntimeException(uidS()));
-    saveToFile_Exceptions(new RuntimeException(uidS()), new Error(uidS()));
-    saveToFile_Exceptions(new Error(uidS()), new Error(uidS()));
-  }
-
-  private void saveToFile_Exceptions(Throwable thrown1, Throwable thrown2) throws Throwable {
-    doThrow(thrown1).when(cursor).hasNext();
-    doThrow(thrown2).when(cursor).close();
-
-    String name = uidS();
-    when(dao.openByName(anyString())).thenReturn(cursor);
-
-    try {
-      subj.saveToFile(name, predicate);
-      fail();
-    } catch (Throwable t) {
-      if (t != thrown1)
-        throw t;
-      verifyInOrder(dao).openByName(name);
-      verifyInOrder(cursor).hasNext();
-      verifyInOrder(cursor).close();
-
-      log.warn("Невозможно закрыть курсор", thrown2);
-    }
+  @SuppressWarnings("unchecked")
+  private CursorCallback<Account, Boolean> anyCursorCallback() {
+    return any(CursorCallback.class);
   }
 
   private Account newAccount() {
