@@ -20,9 +20,9 @@ public class Sample2 {
   }
 
   public void createAccounts(List<String> names) {
-//    for (String name: names) {
-//      createAccount(name);
-//    }
+    for (String name: names) {
+      self().createAccount(name);
+    }
   }
 
   // нужен для mock-тестирования
