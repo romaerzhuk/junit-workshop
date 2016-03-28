@@ -11,8 +11,18 @@ public class Sample2 {
     Account account = new Account();
     account.setId(dao.nextId());
     account.setName(name);
-    account.setCreated(new Timestamp(System.currentTimeMillis()));
+    account.setCreated(new Timestamp(self().currentTimeMillis()));
     dao.save(account);
     return account.getId();
+  }
+
+  // нужен для mock-тестирования
+  Sample2 self() {
+    return this;
+  }
+
+  // не тестируется: static System.currentTimeMillis()
+  long currentTimeMillis() {
+    return System.currentTimeMillis();
   }
 }

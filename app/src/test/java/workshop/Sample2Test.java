@@ -25,7 +25,8 @@ public class Sample2Test {
 
   @InjectMocks
   private Sample2 subj;
-
+  @Mock
+  private Sample2 self;
   @Mock
   private Dao dao;
   @Captor
@@ -35,12 +36,17 @@ public class Sample2Test {
 
   @BeforeMock
   public void beforeMock() {
-    subj = new Sample2();
+    subj = new Sample2() {
+      @Override Sample2 self() {
+        return self;
+      }
+    };
   }
 
   @Before
   public void setUp() {
     now = newTimestamp();
+    when(self.currentTimeMillis()).thenReturn(now.getTime());
   }
 
   @Test
@@ -52,6 +58,7 @@ public class Sample2Test {
     assertThat(subj.createAccount(name), is(id));
 
     verifyInOrder(dao).nextId();
+    verifyInOrder(self).currentTimeMillis();
     verifyInOrder(dao).save(accountCaptor.capture());
     assertThat(account().getId(), is(id));
     assertThat(account().getName(), is(name));
