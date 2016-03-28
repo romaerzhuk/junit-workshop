@@ -97,7 +97,7 @@ public class Sample2Test {
 
     assertThat(subj.saveToFile(name, predicate), is(true));
 
-    assertThat(readFileToString(new File(subj.dir, name + ".txt"), "cp1251"),
+    assertThat(readFileToString(new File(subj.dir, name + ".txt"), "UTF-8"),
         is(account1.getName() + "\n" + account3.getName() + "\n"));
 
     verifyInOrder(dao).openByName(name);
