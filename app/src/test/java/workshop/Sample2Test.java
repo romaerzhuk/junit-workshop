@@ -88,20 +88,17 @@ public class Sample2Test {
     Account account3 = newAccount();
     when(cursor.next()).thenReturn(account1, account2, account3);
     when(predicate.apply(any(Account.class))).thenReturn(true, false, true);
-    doAnswer(new Answer<Void>() {
-      @Override
-      public Void answer(InvocationOnMock inv) throws Throwable {
-        Writer out = inv.getArgumentAt(0, Writer.class);
-        Account account = inv.getArgumentAt(1, Account.class);
-        out.write(account.getId() + "\n");
-        return null;
-      }
+    doAnswer(inv -> {
+      Writer out = inv.getArgumentAt(0, Writer.class);
+      Account account = inv.getArgumentAt(1, Account.class);
+      out.write(account.getName() + "\n");
+      return null;
     }).when(formatter).write(isA(Writer.class), any(Account.class));
 
     assertThat(subj.saveToFile(name, predicate), is(true));
 
     assertThat(readFileToString(new File(subj.dir, name + ".txt"), "cp1251"),
-        is(account1.getId() + "\n" + account3.getId() + "\n"));
+        is(account1.getName() + "\n" + account3.getName() + "\n"));
 
     verifyInOrder(dao).openByName(name);
     verifyInOrder(cursor).hasNext();
@@ -150,7 +147,7 @@ public class Sample2Test {
 
   private Account newAccount() {
     Account a = new Account();
-    a.setId(uid());
+    a.setName("Имя" + uid());
     return a;
   }
 }
