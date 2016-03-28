@@ -104,6 +104,8 @@ public class Sample2Test {
   public void testSaveToFile_Exceptions() throws Throwable {
     saveToFile_Exceptions(new RuntimeException(uidS()), new SQLException(uidS()));
     saveToFile_Exceptions(new RuntimeException(uidS()), new RuntimeException(uidS()));
+    saveToFile_Exceptions(new RuntimeException(uidS()), new Error(uidS()));
+    saveToFile_Exceptions(new Error(uidS()), new Error(uidS()));
   }
 
   private void saveToFile_Exceptions(Throwable thrown1, Throwable thrown2) throws Throwable {

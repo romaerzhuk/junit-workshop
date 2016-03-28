@@ -51,9 +51,7 @@ public class Sample2 {
 
   private void close(Cursor<Account> cursor) {
     try {
-      if (cursor != null) {
-        cursor.close();
-      }
+      cursor.close();
     } catch (Throwable t) {
       log.warn("Невозможно закрыть курсор", t);
     }
