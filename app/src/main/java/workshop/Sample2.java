@@ -9,8 +9,6 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import javax.annotation.Resource;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Sample2 {
   @Resource
@@ -30,28 +28,36 @@ public class Sample2 {
    * @throws IOException
    * @throws SQLException
    */
-  public boolean saveToFile(String name, Predicate predicate) throws IOException, SQLException {
+  public boolean saveToFile(final String name, final Predicate predicate) throws IOException, SQLException {
     return cursorTemplate.execute(dao.cursorCreatorByName(name), new CursorCallback<Account, Boolean>() {
         @Override
         public Boolean doWithCursor(Iterator<Account> cursor) throws SQLException {
-          Writer out = null;
-          try {
-            while (cursor.hasNext()) {
-              Account account = cursor.next();
-              if (predicate.apply(account)) {
-                if (out == null) {
-                  out = new OutputStreamWriter(new FileOutputStream(new File(dir, name + ".txt")), "UTF-8");
-                }
-                formatter.write(out, account);
-              }
-            }
-            return out != null;
-          } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e); // TODO поправить хак
-          } finally {
-            IOUtils.closeQuietly(out);
-          }
+          return saveToFile(cursor, predicate, name);
         }
       });
+  }
+
+  Sample2 self() {
+    return this;
+  }
+
+  Boolean saveToFile(Iterator<Account> cursor, Predicate predicate, String name) {
+    Writer out = null;
+    try {
+      while (cursor.hasNext()) {
+        Account account = cursor.next();
+        if (predicate.apply(account)) {
+          if (out == null) {
+            out = new OutputStreamWriter(new FileOutputStream(new File(dir, name + ".txt")), "UTF-8");
+          }
+          formatter.write(out, account);
+        }
+      }
+      return out != null;
+    } catch (IOException e) {
+      throw new RuntimeException(e.getMessage(), e); // TODO поправить хак
+    } finally {
+      IOUtils.closeQuietly(out);
+    }
   }
 }
