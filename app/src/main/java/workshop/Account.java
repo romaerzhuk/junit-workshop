@@ -41,4 +41,12 @@ public class Account {
   public void setClosed(boolean closed) {
     this.closed = closed;
   }
+
+  public Timestamp getCreated() {
+    return created;
+  }
+
+  public void setCreated(Timestamp created) {
+    this.created = created;
+  }
 }
