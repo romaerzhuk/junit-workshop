@@ -6,20 +6,20 @@
  * рефакторинг: удаление избыточного и грязного кода.
 2. Фреймворки
  1. Базовые фреймворки Unit-тестирования:
-  * JUnit;
-  * TestNG.
+   * JUnit;
+   * TestNG.
  2. Hamcrest
  3. Mock-тестирование:
-  * Mockito;
-  * PowerMock;
-  * Easymock;
-  * JMockit.
+   * Mockito;
+   * PowerMock;
+   * Easymock;
+   * JMockit.
  4. Собственный набор утилит: test-util
-  * TestUtil:
-    - uid(), newDate(), уникальные значения для тестов;
-    - toDate(Date), format(Date, format), parse(str, parsePatterns), toCalendar(Date), преобразование даты/времени;
-    - dec(String), dec(double), преобразования в BigDecimal.
-    - readFileToString(testClass, suffix, encoding), getFile;
+   * TestUtil:
+     * uid(), newDate(), уникальные значения для тестов;
+     * toDate(Date), format(Date, format), parse(str, parsePatterns), toCalendar(Date), преобразование даты/времени;
+     * dec(String), dec(double), преобразования в BigDecimal.
+     * readFileToString(testClass, suffix, encoding), getFile;
   * Rules:
     * MockitoRule, verifyInOrder
     * BeforeMockRule, инициализация до Mockito;
