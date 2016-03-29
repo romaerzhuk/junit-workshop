@@ -9,8 +9,12 @@ public class SampleDao extends AbstractDao {
   public List<Account> findByCriteria(Account criteria) {
     SqlQuery query = new SqlQuery("SELECT ID, NAME, AMOUNT, CLOSED"
         + "\nFROM ACCOUNT");
-    query.add("NAME", criteria.getName());
-    query.add("AMOUNT", criteria.getAmount());
+    if (criteria.getName() != null) {
+      query.add("NAME", criteria.getName());
+    }
+    if (criteria.getAmount() != null) {
+      query.add("AMOUNT", criteria.getAmount());
+    }
     return self().executeQuery(Account.class, query);
   }
 
