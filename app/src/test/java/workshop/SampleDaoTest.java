@@ -1,7 +1,6 @@
 package workshop;
 
 import java.util.Date;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,12 +12,12 @@ import static ru.iteco.test.utils.TestUtil.toDate;
 /**
  * Created by roman on 27.03.16.
  */
-public class Sample1Test {
-  private Sample1 subj;
+public class SampleDaoTest {
+  private SampleDao subj;
 
   @Before
   public void setUp() {
-    subj = new Sample1();
+    subj = new SampleDao();
   }
 
   @Test
