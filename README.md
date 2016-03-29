@@ -30,7 +30,7 @@
 3. Примеры:
  * test-00, пустой проект;
  * test-01, SimpleDateFormat.parse, JUnit, assertEquals, TestUtil.toDate;
- * test-02, assertThat, Mockito, MockUtils.verifyInOrder, Captor, self, рефакторинг, PowerMock;
+ * test-02, Hamcrest, Mockito, assertThat, MockUtils.verifyInOrder, Captor, self, PropertiesMatcher, рефакторинг, PowerMock;
  * test-04, наследование, TestUtil.readFileToString;
  * test-05, параметризированные тесты, TestUtil.uid(Enum.class);
  * test-03, полное тестирование legacy-кода, answer, рефакторинг, безопасное закрытие ресурсов.
