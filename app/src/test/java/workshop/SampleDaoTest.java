@@ -73,6 +73,20 @@ public class SampleDaoTest {
     assertThat(q.params(), contains(criteria.getName(), criteria.getAmount()));
   }
 
+  @Test
+  public void testFindByCriteria_empty() throws Exception {
+    Account criteria = new Account();
+    List<Account> result = asList(newAccount(), newAccount());
+    when(self.executeQuery(eq(Account.class), any(SqlQuery.class))).thenReturn(result);
+
+    assertThat(subj.findByCriteria(criteria), is(result));
+
+    verifyInOrder(self).executeQuery(eq(Account.class), query.capture());
+    SqlQuery q = query.getValue();
+    assertThat(q.sql(), is(readFileToString("findByCriteria_empty.sql")));
+    assertThat(q.params(), empty());
+  }
+
   private String readFileToString(String name) throws Exception {
     return TestUtil.readFileToString(getClass(), name, "UTF-8").replaceAll("\r\n", "\n");
   }
