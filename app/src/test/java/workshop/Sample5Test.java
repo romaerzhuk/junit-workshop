@@ -31,35 +31,6 @@ public class Sample5Test {
   }
 
   @Test
-  public void testSave_position_is_null() throws Exception {
-    Position pos = new Position();
-
-    subj.save(pos);
-
-    verifyInOrder(dao).insert(pos);
-  }
-
-  @Test
-  public void testSave_position_is_INIT() throws Exception {
-    Position pos = new Position();
-    pos.setState(State.INIT);
-
-    subj.save(pos);
-
-    verifyInOrder(dao).insert(pos);
-  }
-
-  @Test
-  public void testSave_position_is_other() throws Exception {
-    Position pos = new Position();
-    pos.setState(uid(State.class, State.INIT));
-
-    subj.save(pos);
-
-    verifyInOrder(dao).update(pos);
-  }
-
-  @Test
   @Parameterized("setState") // указывает на метод(ы), которыми параметризируется тест
   public void testSave() {
     Position pos = new Position();
