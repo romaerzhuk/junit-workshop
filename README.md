@@ -5,16 +5,16 @@
  * уверенность: проверка всех деталей алгоритмов;
  * рефакторинг: удаление избыточного и грязного кода.
 2. Фреймворки
- 2.1 Базовые фреймворки Unit-тестирования:
+ 1. Базовые фреймворки Unit-тестирования:
   * JUnit;
   * TestNG.
- 2.2 Hamcrest
- 2.3 Mock-тестирование:
+ 2. Hamcrest
+ 3. Mock-тестирование:
   * Mockito;
   * PowerMock;
   * Easymock;
   * JMockit.
- 2.4 Собственный набор утилит: test-util
+ 4. Собственный набор утилит: test-util
   * TestUtil:
     - uid(), newDate(), уникальные значения для тестов;
     - toDate(Date), format(Date, format), parse(str, parsePatterns), toCalendar(Date), преобразование даты/времени;
