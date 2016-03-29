@@ -29,7 +29,7 @@
       * JpaRule, тестирование JPA 2.0.
 3. Примеры:
  * test-00, пустой проект
- * test-01, SimpleDateFormat.parse, JUnit, Assert.assertEquals, TestUtil.toDate
- * test-02, assertThat, Mockito, verifyInOrder, Captor, self, рефакторинг, PowerMock
+ * test-01, SimpleDateFormat.parse, JUnit, assertEquals, TestUtil.toDate
+ * test-02, assertThat, Mockito, MockUtils.verifyInOrder, Captor, self, рефакторинг, PowerMock
  * test-04, наследование, TestUtil.readFileToString
  * test-03, полное тестирование legacy-кода, answer, рефакторинг, безопасное закрытие ресурсов
