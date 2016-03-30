@@ -1,13 +1,10 @@
 package workshop;
 
 import static java.util.Arrays.asList;
-import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 import static ru.iteco.test.utils.MockUtils.verifyInOrder;
 import static ru.iteco.test.utils.TestUtil.uid;
@@ -114,7 +111,7 @@ public class Sample2Test {
     String name = uidS();
     Iterator<Account> cursor = Collections.<Account>emptyList().iterator();
     boolean result = uidBool();
-    when(fileTemplate.execute(any(File.class), any(WriterCallback.class))).thenReturn(result);
+    when(fileTemplate.execute(any(File.class), anyWriterCallback())).thenReturn(result);
 
     assertThat(subj.saveToFile(cursor, name, predicate), is(result));
 
@@ -129,7 +126,7 @@ public class Sample2Test {
     // шаг1: fileTemplate.execute
     String name = uidS();
     boolean result = uidBool();
-    when(fileTemplate.execute(any(File.class), any(WriterCallback.class))).thenReturn(result);
+    when(fileTemplate.execute(any(File.class), anyWriterCallback())).thenReturn(result);
     List<Account> accounts = asList(newAccount(), newAccount(), newAccount());
 
     assertThat(subj.saveToFile(accounts.iterator(), name, predicate), is(result));
@@ -146,6 +143,11 @@ public class Sample2Test {
     verifyInOrder(predicate).apply(accounts.get(1));
     verifyInOrder(predicate).apply(accounts.get(2));
     verifyInOrder(formatter).write(writer, accounts.get(2));
+  }
+
+  @SuppressWarnings("unchecked")
+  private WriterCallback<Boolean> anyWriterCallback() {
+    return any(WriterCallback.class);
   }
 
   @SuppressWarnings("unchecked")
