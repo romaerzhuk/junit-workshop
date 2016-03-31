@@ -8,10 +8,10 @@ import java.util.Iterator;
 import javax.annotation.Resource;
 
 public class Sample2 {
-  private class SaveToFile implements CursorCallback<Account, Boolean>, WriterCallback<Boolean> {
-    private String name;
-    private Predicate predicate;
-    private Iterator<Account> cursor;
+  class SaveToFile implements CursorCallback<Account, Boolean>, WriterCallback<Boolean> {
+    final String name;
+    final Predicate predicate;
+    Iterator<Account> cursor;
 
     public SaveToFile(String name, Predicate predicate) {
       this.name = name;
