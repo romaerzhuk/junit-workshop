@@ -76,6 +76,7 @@ public class Sample5Test {
   @ParameterizedField("state") // сбрасывает state=null после теста
   private void setState(ParameterizedTest test) {
     for (State s: State.values()) {
+      state = s;
       test.run(state);
     }
     state = null;
