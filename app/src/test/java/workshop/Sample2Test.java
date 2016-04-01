@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 import static ru.iteco.test.utils.MockUtils.verifyInOrder;
+import static ru.iteco.test.utils.TestUtil.dec;
 import static ru.iteco.test.utils.TestUtil.newTimestamp;
 import static ru.iteco.test.utils.TestUtil.uid;
 import static ru.iteco.test.utils.TestUtil.uidBool;
@@ -21,6 +22,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import ru.iteco.test.utils.TestUtil;
 import ru.iteco.test.utils.annotations.BeforeMock;
 import ru.iteco.test.utils.hamcrest.PropertiesMatcher;
 
@@ -94,16 +96,14 @@ public class Sample2Test {
     assertThat(account(), account(id, account.getName(), account));
   }
 
-  private Matcher<Account> account(final long id, final String name, final Account copy) {
-    return new PropertiesMatcher<Account>("account") {
-      @Override protected void check(Account it) throws Throwable {
-        add("id", it.getId(), id);
-        add("name", it.getName(), name);
-        add("created", it.getCreated(), now);
-        add("closed", it.isClosed(), copy.isClosed());
-        add("amount", it.getAmount(), copy.getAmount());
-      }
-    };
+  private Matcher<Account> account(long id, String name, Account copy) {
+    return PropertiesMatcher.of("account", (Account it, PropertiesMatcher<Account> m) -> {
+        m.add("id", it.getId(), id);
+        m.add("name", it.getName(), name);
+        m.add("created", it.getCreated(), now);
+        m.add("closed", it.isClosed(), copy.isClosed());
+        m.add("amount", it.getAmount(), copy.getAmount());
+    });
   }
 
   private Account newAccount() {
@@ -111,7 +111,7 @@ public class Sample2Test {
     a.setCreated(newTimestamp());
     a.setId(uid());
     a.setName(uidS());
-    a.setAmount(BigDecimal.valueOf(uid()));
+    a.setAmount(dec(uid()));
     a.setClosed(uidBool());
     return a;
   }
